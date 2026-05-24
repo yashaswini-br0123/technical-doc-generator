@@ -26,12 +26,16 @@ export async function POST(req: Request) {
       );
     }
 
-    // 2. Load API key
-    const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    // 2. Load API key (check client override header first, then fall back to env variable)
+    let apiKey = req.headers.get('x-gemini-key') || '';
+    if (!apiKey || apiKey === 'your_gemini_api_key_here') {
+      apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
+    }
+
     if (!apiKey || apiKey === 'your_gemini_api_key_here') {
       return new Response(
         JSON.stringify({
-          error: 'Gemini API Key is not configured. Please add NEXT_PUBLIC_GEMINI_API_KEY in your Vercel Dashboard or .env.local file.',
+          error: 'Gemini API Key is not configured. Please add NEXT_PUBLIC_GEMINI_API_KEY in your Vercel Dashboard or configure it in the Settings modal.',
           code: 'AUTH_ERROR',
         }),
         { status: 401, headers: { 'Content-Type': 'application/json' } }
