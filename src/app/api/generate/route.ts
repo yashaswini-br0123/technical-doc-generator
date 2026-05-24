@@ -45,7 +45,7 @@ export async function POST(req: Request) {
     // 3. Generate dynamic system prompt and configure Gemini
     const systemPrompt = generateSystemPrompt(inputType, documentationType, tone, language);
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     // 4. Set up ReadableStream for Server-Sent Events (SSE)
     const stream = new ReadableStream({
