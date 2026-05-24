@@ -391,18 +391,23 @@ export default function InputSection() {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let streamedDoc = '';
+      let buffer = '';
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        
+        // Save the last element back to buffer as it might be incomplete
+        buffer = lines.pop() || '';
 
         for (const line of lines) {
-          if (line.trim().startsWith('data: ')) {
+          const trimmed = line.trim();
+          if (trimmed.startsWith('data: ')) {
             try {
-              const data = JSON.parse(line.trim().slice(6));
+              const data = JSON.parse(trimmed.slice(6));
               
               if (data.status === 'generating' && data.content) {
                 streamedDoc += data.content;
@@ -411,10 +416,22 @@ export default function InputSection() {
                 throw new Error(data.message || 'Error occurred during streaming.');
               }
             } catch {
-              // Ignore partial chunk syntax errors or line anomalies
+              // Ignore partial chunk syntax errors
             }
           }
         }
+      }
+
+      // Parse any remaining line in buffer
+      const finalLine = buffer.trim();
+      if (finalLine.startsWith('data: ')) {
+        try {
+          const data = JSON.parse(finalLine.slice(6));
+          if (data.status === 'generating' && data.content) {
+            streamedDoc += data.content;
+            setDocumentation(streamedDoc);
+          }
+        } catch {}
       }
 
       setLoading(false);
