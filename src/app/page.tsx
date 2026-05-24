@@ -1,100 +1,82 @@
-import Image from "next/image";
+'use client';
+
+import React, { useState } from 'react';
+import Header from '@/components/Header';
+import InputSection from '@/components/InputSection';
+import OutputSection from '@/components/OutputSection';
+import { useDocStore } from '@/lib/store';
+import { Toaster } from 'sonner';
+import { FileCode, FileText } from 'lucide-react';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [activeTab, setActiveTab] = useState<'input' | 'output'>('input');
+  const { documentation, isLoading } = useDocStore();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  return (
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+      {/* 1. Header (Sticky) */}
+      <Header />
+
+      {/* 2. Global Alert Notification toaster */}
+      <Toaster position="top-right" closeButton richColors />
+
+      {/* 3. Main Body Content Container */}
+      <main className="flex-grow w-full max-w-7xl mx-auto px-4 md:px-8 py-6 flex flex-col gap-6">
+        
+        {/* Mobile & Tablet Tab Selectors (< 1024px) */}
+        <div className="flex lg:hidden bg-white border border-slate-200 rounded-lg p-1.5 shadow-sm">
+          <button
+            onClick={() => setActiveTab('input')}
+            className={`flex-1 flex items-center justify-center gap-2 py-3.5 px-4 rounded-md text-xs font-bold transition-all ${
+              activeTab === 'input'
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+            }`}
           >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <FileCode size={15} />
+            <span>Configure Input</span>
+          </button>
+          
+          <button
+            onClick={() => setActiveTab('output')}
+            className={`flex-1 flex items-center justify-center gap-2 py-3.5 px-4 rounded-md text-xs font-bold transition-all relative ${
+              activeTab === 'output'
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+            }`}
           >
-            Read our docs
-          </a>
+            <FileText size={15} />
+            <span>Preview Result</span>
+            {documentation && (
+              <span className={`absolute top-2 right-4 w-2 h-2 rounded-full ${isLoading ? 'bg-blue-400 animate-ping' : 'bg-emerald-500'}`}></span>
+            )}
+          </button>
+        </div>
+
+        {/* Responsive Grid System */}
+        <div className="flex-grow grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
+          
+          {/* Left panel - Input Section (Visible on Desktop OR active on Mobile) */}
+          <div className={`${activeTab === 'input' ? 'block' : 'hidden lg:block'} w-full`}>
+            <InputSection />
+          </div>
+
+          {/* Right panel - Output Section (Visible on Desktop OR active on Mobile) */}
+          <div className={`${activeTab === 'output' ? 'block' : 'hidden lg:block'} w-full`}>
+            <OutputSection />
+          </div>
+
         </div>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+      {/* 4. Accessibility/SEO Footer */}
+      <footer className="w-full py-5 text-center text-xs text-slate-400 bg-white border-t border-slate-200 select-none">
+        <p className="font-medium">
+          DocGen Technical Documentation Generator &copy; {new Date().getFullYear()}. All Rights Reserved.
+        </p>
+        <p className="text-[10px] text-slate-400 mt-1">
+          Complies with WCAG 2.1 AA accessibility guidelines. Driven by Google Gemini AI.
+        </p>
       </footer>
     </div>
   );
